@@ -26,38 +26,7 @@ module.exports = {
     }
     */
     watch: function (param, success, error) {
-        var timeoutTimer = {timer: null};
-
-        var win = function (p) {
-            clearTimeout(timeoutTimer.timer);
-            if (!(timeoutTimer.timer)) {
-                // Timeout already happened, or native fired error callback for
-                // this geo request.
-                // Don't continue with success callback.
-                return;
-            }
-            success(p);
-        };
-        var fail = function (e) {
-            clearTimeout(timeoutTimer.timer);
-            timeoutTimer.timer = null;
-            if (error) {
-                error(e);
-            }
-        };
-
-        if (param && param.timeout >= 1000) {
-            // If the timeout value was not set to Infinity (default), then
-            // set up a timeout function that will fire the error callback
-            // if no successful position was retrieved before timeout expired.
-            timeoutTimer.timer = createTimeout(fail, param.timeout);
-        } else {
-            // This is here so the check in the win function doesn't mess stuff up
-            // may seem weird but this guarantees timeoutTimer is
-            // always truthy before we call into native
-            timeoutTimer.timer = true;
-        }
-        exec(win, fail, "BDLocation", "watch", [
+        exec(success, error, "BDLocation", "watch", [
             param.mode != undefined ? param.mode : "Hight_Accuracy",
             param.coor != undefined ? param.coor : "bd09ll",
             param.span != undefined ? param.span : 0,
@@ -66,7 +35,6 @@ module.exports = {
             param.enableSimulateGps != undefined ? param.enableSimulateGps : false,
             param.distanceFilter != undefined ? param.distanceFilter : 1
         ]);
-        return timeoutTimer;
     },
 
     /**
@@ -76,15 +44,3 @@ module.exports = {
         exec(success, error, "BDLocation", "stop", []);
     }
 };
-
-function createTimeout(errorCallback, timeout) {
-    var t = setTimeout(function () {
-        clearTimeout(t);
-        t = null;
-        errorCallback({
-            code: -1,
-            message: "Position retrieval timed out."
-        });
-    }, timeout);
-    return t;
-}
