@@ -48,6 +48,8 @@ public class BDLocation extends CordovaPlugin implements BDLocationListener {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("watch")) {
             mWatchCallback = callbackContext;//保存回调结果
+            mWatchArgs = args;
+            mWatchAction = action;
             if (!needsToAlertForRuntimePermission()) {
                 this.watch(action, args, callbackContext);
             } else {
@@ -74,9 +76,6 @@ public class BDLocation extends CordovaPlugin implements BDLocationListener {
      * 5: enableSimulateGps [boolean](默认为false. 设置是否允许模拟GPS true:允许； false:不允许)
      */
     private void watch(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        mWatchArgs = args;
-        mWatchAction = action;
-
         String mode = args.getString(0);
         String coor = args.getString(1);
         int span = args.getInt(2);
