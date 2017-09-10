@@ -29,15 +29,6 @@ import com.baidu.location.LocationClientOption;
 public class BDLocation extends CordovaPlugin implements BDLocationListener {
     private String TAG = "BDLocationPlugin";
 
-    // private static int BD_PERMISSION_TYPE = 999;
-    private String [] permissions = { 
-        Manifest.permission.READ_PHONE_STATE, 
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_FINE_LOCATION, 
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE 
-    };
-
     private LocationClient mLocationClient = null;
     private CallbackContext mWatchCallback = null;
     private JSONArray mWatchArgs = null;
@@ -54,7 +45,12 @@ public class BDLocation extends CordovaPlugin implements BDLocationListener {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("watch")){
-            this.watch(action, args, callbackContext);
+            if (!needsToAlertForRuntimePermission()) {
+                this.watch(action, args, callbackContext);
+            } else {
+                requestPermission();
+                // 会在onRequestPermissionResult时performGetLocation
+            }
             return true;
         }
         if (action.equals("stop")){
@@ -185,18 +181,25 @@ public class BDLocation extends CordovaPlugin implements BDLocationListener {
         }
     }
 
-    @Override
-    public boolean hasPermisssion() {
-        for(String p : permissions)
-        {
-            if(!this.cordova.hasPermission(p))
-                return false;
+    private boolean needsToAlertForRuntimePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return !cordova.hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION) || !cordova.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+        } else {
+            return false;
         }
-        return true;
     }
 
-    @Override
-    public void requestPermissions(int requestCode){
-        this.cordova.requestPermissions(this, requestCode, permissions);
+    private void requestPermission() {
+        ArrayList<String> permissionsToRequire = new ArrayList<String>();
+
+        if (!cordova.hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION))
+            permissionsToRequire.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+
+        if (!cordova.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION))
+            permissionsToRequire.add(Manifest.permission.ACCESS_FINE_LOCATION);
+
+        String[] _permissionsToRequire = new String[permissionsToRequire.size()];
+        _permissionsToRequire = permissionsToRequire.toArray(_permissionsToRequire);
+        cordova.requestPermissions(this, REQUEST_CODE, _permissionsToRequire);
     }
 }
