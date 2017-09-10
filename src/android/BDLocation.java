@@ -164,17 +164,15 @@ public class BDLocation extends CordovaPlugin implements BDLocationListener {
 
     @Override
     public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
-        if (mWatchCallback != null) {
-            for (int r : grantResults) {
-                if (r == PackageManager.PERMISSION_DENIED) {
-                    LOG.e(TAG, "相关权限被拒绝!");
-                    PluginResult result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
-                    mWatchCallback.sendPluginResult(result);
-                    return;
-                }
+        for (int r : grantResults) {
+            if (r == PackageManager.PERMISSION_DENIED) {
+                LOG.e(TAG, "相关权限被拒绝!");
+                PluginResult result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+                mWatchCallback.sendPluginResult(result);
+                return;
             }
-            this.watch(mWatchAction, mWatchArgs, mWatchCallback);
         }
+        this.watch(mWatchAction, mWatchArgs, mWatchCallback);
     }
 
     private boolean needsToAlertForRuntimePermission() {
