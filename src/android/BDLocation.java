@@ -47,6 +47,7 @@ public class BDLocation extends CordovaPlugin implements BDLocationListener {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("watch")) {
+            mWatchCallback = callbackContext;//保存回调结果
             if (!needsToAlertForRuntimePermission()) {
                 this.watch(action, args, callbackContext);
             } else {
@@ -73,7 +74,6 @@ public class BDLocation extends CordovaPlugin implements BDLocationListener {
      * 5: enableSimulateGps [boolean](默认为false. 设置是否允许模拟GPS true:允许； false:不允许)
      */
     private void watch(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        mWatchCallback = callbackContext;//保存回调结果
         mWatchArgs = args;
         mWatchAction = action;
 
@@ -85,8 +85,10 @@ public class BDLocation extends CordovaPlugin implements BDLocationListener {
         boolean enableSimulateGps = args.getBoolean(5);
 
         LocationClientOption option = new LocationClientOption();
-        if (mode.equals("Battery_Saving")) option.setLocationMode(LocationClientOption.LocationMode.Battery_Saving);
-        if (mode.equals("Device_Sensors")) option.setLocationMode(LocationClientOption.LocationMode.Device_Sensors);
+        if (mode.equals("Battery_Saving"))
+            option.setLocationMode(LocationClientOption.LocationMode.Battery_Saving);
+        if (mode.equals("Device_Sensors"))
+            option.setLocationMode(LocationClientOption.LocationMode.Device_Sensors);
         else option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
         option.setCoorType(coor);//可选，默认gcj02，设置返回的定位结果坐标系
         option.setScanSpan(span);//可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
