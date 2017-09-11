@@ -16,5 +16,6 @@
 
 - (void)didUpdateUserHeading:(BMKUserLocation *)userLocation;
 - (void)didUpdateBMKUserLocation:(BMKUserLocation *)userLocation;
+- (void)didFailToLocateUserWithError:(NSError *)error;
 
 @end

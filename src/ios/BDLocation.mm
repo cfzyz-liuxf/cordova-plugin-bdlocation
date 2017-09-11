@@ -81,4 +81,19 @@
     }
 }
 
+- (void)didFailToLocateUserWithError:(NSError *)error
+{
+    if(_watchCommand != nil)
+    {
+        NSMutableDictionary* json = [[NSMutableDictionary alloc] init];
+        [json setValue:[NSNumber numberWithInt:167] forKey:@"code"];
+        [json setValue:@"error" forKey:@"msg"];
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
+        [result setKeepCallbackAsBool:TRUE];
+        [self.commandDelegate sendPluginResult:result callbackId:_watchCommand.callbackId];
+    }
+}
+
+
+
 @end
