@@ -95,6 +95,7 @@ public class BDLocation extends CordovaPlugin implements BDLocationListener {
         option.setIgnoreKillProcess(ignoreKillProcess);//可选，默认true，定位SDK内部是一个SERVICE，并放到了独立进程，设置是否在stop的时候杀死这个进程，默认不杀死
         option.setEnableSimulateGps(enableSimulateGps);//可选，默认为false 设置是否允许模拟GPS true:允许； false:不允许，
         option.setIsNeedAltitude(true);//GPS定位时需要高度结果
+        option.setIsNeedAddress(true);
         mLocationClient.setLocOption(option);
         mLocationClient.start();
 
@@ -150,6 +151,7 @@ public class BDLocation extends CordovaPlugin implements BDLocationListener {
                 data.put("longitude", location.getLongitude());
                 data.put("altitude", location.getAltitude());
                 data.put("radius", location.getRadius());
+                data.put("address", location.getAddrStr());
                 json.put("data", data);
 
                 PluginResult result = new PluginResult(PluginResult.Status.OK, json);
